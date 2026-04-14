@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="首页" />
+
+    <item
+        android:id="@+id/mapFragment"
+        android:icon="@android:drawable/ic_menu_mapmode"
+        android:title="地图" />
+
+    <item
+        android:id="@+id/planningFragment"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="规划" />
+
+</menu>

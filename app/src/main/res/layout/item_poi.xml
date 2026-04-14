@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <!-- 顺序标记 -->
+        <TextView
+            android:id="@+id/visit_order"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@drawable/circle_background"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="1"
+            tools:visibility="visible" />
+
+        <!-- 景点图片 -->
+        <ImageView
+            android:id="@+id/poi_image"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="景点图片"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toEndOf="@id/visit_order"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@android:drawable/ic_menu_gallery" />
+
+        <!-- 景点名称 -->
+        <TextView
+            android:id="@+id/poi_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/remove_button"
+            app:layout_constraintStart_toEndOf="@id/poi_image"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="景点名称" />
+
+        <!-- 评分 -->
+        <TextView
+            android:id="@+id/poi_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:textColor="#FF9800"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@id/poi_image"
+            app:layout_constraintTop_toBottomOf="@id/poi_name"
+            tools:text="4.5" />
+
+        <!-- 地址 -->
+        <TextView
+            android:id="@+id/poi_address"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/poi_image"
+            app:layout_constraintTop_toBottomOf="@id/poi_rating"
+            tools:text="上海市黄浦区南京东路" />
+
+        <!-- 标签 -->
+        <TextView
+            android:id="@+id/poi_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="#999999"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/poi_image"
+            app:layout_constraintTop_toBottomOf="@id/poi_address"
+            tools:text="美食 / 购物 / 观光" />
+
+        <!-- 删除按钮 -->
+        <ImageButton
+            android:id="@+id/remove_button"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="移除"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

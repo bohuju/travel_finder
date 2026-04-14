@@ -1,0 +1,19 @@
+# Gradle local cache / temp
+.gradle/
+
+# Local helper tools and downloaded archives
+.tools/
+
+# Android local SDK path
+local.properties
+
+# Build outputs
+build/
+**/build/
+
+# IDE files
+.idea/
+*.iml
+
+# OS files
+.DS_Store
