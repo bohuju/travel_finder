@@ -1,384 +1,192 @@
-# Travel Finder 项目规划
+# Travel Finder 演进与拆分规划
 
-## 1. 目标
+## 1. 规划目标
 
-做一个“旅行兴趣点聚合 + 行程规划”系统，分为两个部分：
+`Travel Finder` 的最终目标不是维持“一个仓库里包含全部内容”的长期形态，而是形成下面的稳定协作格局：
 
-- 后端服务：运行在 Ubuntu 服务器上，负责抓取/识别/整理用户的小红书收藏帖，统一转成可定位的兴趣点数据，存入数据库并按日更新。
-- Android 前端：登录后从后端同步数据，把兴趣点显示在地图和列表中，并支持查看详情、收藏、加行程、导航。
+- `travel-finder-android`
+  Android 客户端项目，负责地图展示、列表浏览、POI 详情、行程规划、导航唤起、本地缓存和 UI 状态。
+- `travel-finder-backend`
+  Backend 服务端项目，负责鉴权、POI 聚合、行程管理、内容抓取、OCR、地址解析、地理编码、同步任务与统一 API。
+- 一套独立维护的协作文档
+  负责 API 契约、领域模型、联调流程、版本策略、部署约定。
 
-核心目标不是“单纯抓数据”，而是把碎片化帖子变成可直接用于出行决策的结构化 POI 数据。
-
----
-
-## 2. 总体架构
-
-建议采用典型的分层 + OOP 设计：
-
-- 表现层：Android App
-- 业务层：后端 API 服务
-- 领域层：POI、帖子、地址、行程等核心对象
-- 基础设施层：爬虫、OCR、数据库、地图服务、任务调度
-
-推荐的主流程：
-
-1. 用户登录 App。
-2. App 向后端请求该用户已同步的兴趣点。
-3. 后端拉取或更新小红书收藏帖子。
-4. 后端对帖子做文本抽取、OCR、地址解析、地理编码。
-5. 后端把 POI 写入数据库，并返回给 App。
-6. App 在地图上展示 POI，在列表中展示可浏览的兴趣点。
+当前仓库是实现这个目标的过渡形态：先在单仓里把边界、接口和实现跑通，再拆分成两个独立代码项目。
 
 ---
 
-## 3. OOP 设计原则
+## 2. 当前状态
 
-### 3.1 单一职责
+当前已经完成：
 
-每个类只负责一件事：
+- Android 工程迁移到 `android/`
+- Backend 最小 Ktor 工程初始化
+- 最小 API 落地：
+  - `GET /health`
+  - `GET /api/pois`
+  - `GET /api/pois/{id}`
+  - `GET /api/trips`
+  - `POST /api/trips`
+- `docs/` 目录已具备 API、领域、部署、进度、模块计划等文档入口
 
-- `PostCrawler` 只负责抓帖子。
-- `OcrExtractor` 只负责从图片提取文字。
-- `AddressParser` 只负责从文本中提取地址信息。
-- `GeocodeService` 只负责地址和坐标转换。
-- `PoiRepository` 只负责 POI 的存取。
-- `MapViewModel` 只负责界面状态。
+当前尚未完成：
 
-### 3.2 开闭原则
-
-当后续增加新来源时，只新增实现类，不改核心流程：
-
-- 新增平台爬虫：实现 `ContentSource` 接口。
-- 新增 OCR 引擎：实现 `TextRecognizer` 接口。
-- 新增地图服务：实现 `GeoProvider` 接口。
-
-### 3.3 里氏替换
-
-任何 `ContentSource` 实现都应能替换到抓取流程中，返回统一的 `RawPost` 结构。
-
-### 3.4 接口隔离
-
-不要设计过胖接口，推荐拆分为：
-
-- `ContentSource`
-- `TextRecognizer`
-- `GeoCoder`
-- `RouteNavigator`
-- `SyncJob`
-
-### 3.5 依赖倒置
-
-业务层依赖抽象接口，不直接依赖某个具体平台 SDK：
-
-- 后端服务逻辑依赖 `TextRecognizer`，不直接依赖某个 OCR 厂商。
-- Android 导航入口依赖 `RouteNavigator`，不把导航逻辑写死在页面里。
+- Backend PostgreSQL 持久化
+- Android 接真实后端接口
+- 鉴权、同步任务、OCR、地址解析、地理编码
+- 双项目正式拆分
 
 ---
 
-## 4. 后端规划
+## 3. 当前仓库与最终形态
 
-### 4.1 后端职责
+### 3.1 当前形态
 
-后端是系统的“数据加工中心”，负责：
-
-- 用户登录与身份校验。
-- 管理用户的小红书收藏来源。
-- 抓取帖子正文、图片和评论中的地址线索。
-- 对图片执行 OCR。
-- 对文本执行地址抽取和标准化。
-- 调用地理编码服务，把地址转成经纬度。
-- 存储 POI、帖子、同步状态和任务日志。
-- 每日定时更新收藏内容。
-
-### 4.2 后端核心对象
-
-建议定义以下领域对象：
-
-- `User`：用户信息和授权信息。
-- `SourceAccount`：用户绑定的小红书来源账号或导入任务。
-- `RawPost`：未加工的原始帖子数据。
-- `PostAsset`：帖子图片、视频封面、截图等资源。
-- `ExtractedText`：OCR 或正文提取后的文字。
-- `AddressCandidate`：候选地址。
-- `Poi`：最终兴趣点。
-- `SyncTask`：同步任务。
-- `SyncLog`：同步结果和错误日志。
-
-### 4.3 后端模块划分
-
-建议按模块拆分为：
-
-- `auth`：登录、令牌、权限控制。
-- `source`：小红书来源管理。
-- `crawler`：帖子抓取。
-- `ocr`：图片识别。
-- `parser`：地址提取、去噪、标准化。
-- `geo`：地理编码、逆地理编码。
-- `poi`：兴趣点管理。
-- `sync`：增量同步、定时任务、去重。
-- `map`：地图展示所需数据封装。
-- `navigation`：给前端返回导航参数。
-
-### 4.4 后端类设计
-
-推荐使用策略模式 + 工厂模式：
+当前仍采用单仓双目录：
 
 ```text
-ContentSource
-├── XiaohongshuSource
-├── BackupImportSource
-
-TextRecognizer
-├── BaiduOcrRecognizer
-├── MockRecognizer
-
-GeoCoder
-├── BaiduGeoCoder
-├── AmapGeoCoder
-
-AddressExtractor
-├── RegexAddressExtractor
-├── LlmAddressExtractor
-
-PoiSyncService
-├── PullUserPostsUseCase
-├── ParseAndResolvePoiUseCase
-├── PersistPoiUseCase
+travel_finder/
+├── android/
+├── backend/
+├── docs/
+├── scripts/
+├── DESIGN.md
+├── plan.md
+└── README.md
 ```
 
-### 4.5 后端数据流
+这种形态的意义是：
 
-#### 场景 A：帖子转 POI
+- 降低初期协作成本
+- 便于快速统一接口与目录边界
+- 让 Android 与 Backend 在真正拆分前完成第一轮联调
 
-1. `ContentSource` 拉取收藏帖子。
-2. `AddressExtractor` 从正文中提取地址候选。
-3. 图片路径进入 `TextRecognizer` 做 OCR。
-4. 合并正文和 OCR 结果，做地址标准化。
-5. `GeoCoder` 把地址转成经纬度。
-6. 生成 `Poi` 并去重。
-7. 保存到数据库。
+### 3.2 最终形态
 
-#### 场景 B：每日增量更新
-
-1. `SyncScheduler` 每日触发。
-2. 找出最近更新的收藏帖。
-3. 重跑抽取流程。
-4. 对比旧 POI，更新地址、坐标、标签、热度。
-5. 记录同步日志。
-
-### 4.6 后端 API 建议
-
-建议提供以下接口：
-
-- `POST /api/auth/login`
-- `GET /api/users/me`
-- `GET /api/pois`
-- `GET /api/pois/{id}`
-- `GET /api/pois/map`
-- `GET /api/pois/list`
-- `POST /api/sync/run`
-- `GET /api/sync/status`
-- `GET /api/trips`
-- `POST /api/trips`
-- `GET /api/navigation/plan`
-
-### 4.7 数据库建议
-
-后端数据库建议至少包含：
-
-- `users`
-- `source_accounts`
-- `raw_posts`
-- `post_assets`
-- `extracted_texts`
-- `address_candidates`
-- `pois`
-- `poi_tags`
-- `sync_tasks`
-- `sync_logs`
-
----
-
-## 5. 前端规划
-
-### 5.1 前端职责
-
-Android App 负责：
-
-- 用户登录。
-- 请求后端 POI 数据。
-- 将 POI 展示到地图和列表。
-- 显示用户当前位置。
-- 支持 POI 详情、收藏、加入行程。
-- 调起百度地图或高德地图导航。
-
-### 5.2 前端页面结构
-
-建议页面如下：
-
-- `LoginFragment`：登录和账号绑定。
-- `HomeFragment`：推荐兴趣点、最近同步结果。
-- `MapFragment`：地图点位展示、当前位置、附近 POI。
-- `PoiDetailFragment` 或底部详情卡：POI 详情、图片、标签、导航按钮。
-- `PlanningFragment`：兴趣点列表、行程编排、顺序调整。
-- `SettingsFragment`：同步设置、地图源选择、导航源选择。
-
-### 5.3 前端类设计
-
-建议保持你现在的 Clean Architecture 结构：
-
-- `ui`：页面
-- `viewmodel`：状态控制
-- `state`：UI 状态
-- `repository`：数据获取
-- `service`：网络请求和导航封装
-
-推荐引入的核心类：
-
-- `PoiRepository`
-- `TripRepository`
-- `UserRepository`
-- `PoiSyncViewModel`
-- `MapViewModel`
-- `TripViewModel`
-- `NavigationLauncher`
-- `LocationProvider`
-
-### 5.4 前端数据流
-
-1. 登录后拿到 token。
-2. `MapViewModel` 请求后端 POI 列表。
-3. `PoiAdapter` 展示列表。
-4. 地图上渲染 marker。
-5. 点击 POI 后显示详情。
-6. 点击“添加到行程”后写入本地状态或请求后端。
-7. 点击“去这里”时调起第三方导航。
-
-### 5.5 前端地图能力
-
-地图层建议支持：
-
-- 当前定位点。
-- POI marker。
-- 当前范围内聚合点。
-- 点击 marker 显示标题、摘要、地址。
-- 搜索框联想。
-- 列表和地图联动。
-
----
-
-## 6. 重点功能设计
-
-### 6.1 小红书帖子转地址
-
-优先级建议：
-
-1. 正文/标题直接抽地址。
-2. 图片 OCR 提取地址。
-3. 地址标准化。
-4. 地理编码。
-5. 人工确认兜底。
-
-这样可以降低 OCR 误识别带来的错误点位。
-
-### 6.2 地图展示
-
-每个 POI 至少包含：
-
-- 名称
-- 地址
-- 经纬度
-- 图片
-- 标签
-- 来源帖子
-- 热度或评分
-
-### 6.3 导航唤起
-
-用户点击“去这里”时：
-
-- 优先提供百度地图导航。
-- 也提供高德地图导航作为备用。
-- 若地图 App 不存在，则退回到网页导航或提示安装。
-
-### 6.4 当前位置
-
-用户位置用于：
-
-- 计算附近 POI。
-- 作为路线起点。
-- 显示与 POI 的距离。
-
----
-
-## 7. 创意增强功能
-
-这些功能会明显提高可用性：
-
-- `智能路线排序`：根据地理位置、开放时间、用户停留时长自动排序一天行程。
-- `一键生成半日/一日路线`：根据收藏 POI 生成推荐路线。
-- `去重与合并`：同一 POI 多篇帖子出现时合并展示。
-- `标签筛选`：美食、亲子、摄影、夜景、室内、雨天可玩。
-- `天气联动`：雨天优先推荐室内点位。
-- `离线缓存`：地铁里也能查看已同步的兴趣点。
-- `行程分享卡片`：导出成图片或链接分享给别人。
-- `收藏优先级`：用户给每个点打星标，生成个人偏好模型。
-- `同步提醒`：每天有新帖子时提醒更新。
-- `地图聚合缩放`：缩小时做聚合，放大时展开 marker。
-
----
-
-## 8. 推荐实现顺序
-
-### 阶段 1：最小可用版本
-
-- 用户登录
-- 后端同步帖子
-- 地址提取
-- POI 入库
-- Android 展示地图和列表
-- 定位与导航唤起
-
-### 阶段 2：体验增强
-
-- 搜索联想
-- POI 详情页
-- 行程创建
-- 路线排序
-- 去重合并
-
-### 阶段 3：智能化
-
-- 自动生成旅行路线
-- 天气推荐
-- 标签偏好推荐
-- 同步任务监控
-
----
-
-## 9. 目录建议
-
-### 9.1 后端目录
+最终建议演进为：
 
 ```text
-backend/
-├── src/main/kotlin/com/travelfinder/
-│   ├── auth/
-│   ├── crawler/
-│   ├── ocr/
-│   ├── parser/
-│   ├── geo/
-│   ├── poi/
-│   ├── sync/
-│   ├── trip/
-│   └── common/
-└── src/main/resources/
+travel-finder-android/
+travel-finder-backend/
+travel-finder-contracts-docs/   # 推荐独立维护，也可托管为文档站点
 ```
 
-### 9.2 Android 目录
+如果后续不希望维护第三个仓库，也可以将协作文档托管到独立站点或产品文档平台，但必须满足一个原则：
+
+- API 契约和跨端领域定义不能只放在 Android 或 Backend 任意一侧
+
+---
+
+## 4. 职责边界
+
+### 4.1 Android 负责
+
+- 用户交互与页面导航
+- 百度地图 SDK 展示
+- POI 列表、地图、详情、行程页面
+- 本地缓存与界面状态
+- 定位、地图联动、导航唤起
+- 调用 Backend API 并消费稳定 DTO
+
+### 4.2 Android 不负责
+
+- 内容抓取
+- OCR
+- 地址抽取与标准化
+- 地理编码
+- 数据持久化主存储
+- 增量同步任务
+
+### 4.3 Backend 负责
+
+- 用户鉴权与会话
+- POI 聚合与行程管理
+- 内容源接入与抓取
+- OCR、地址解析、地理编码
+- 同步调度、失败重试、日志
+- 向 Android 输出稳定 API
+
+### 4.4 Backend 不负责
+
+- 地图 SDK 渲染
+- 客户端导航唤起
+- 客户端 UI 状态
+- 客户端交互逻辑
+
+---
+
+## 5. 协作文档设计
+
+前后端拆分后，最容易失控的不是代码，而是契约漂移。因此文档要先于拆分设计好。
+
+### 5.1 文档分类
+
+推荐把协作文档固定为四类：
+
+- `API Contract`
+  接口路径、请求参数、响应 DTO、错误码、分页/筛选/排序规则、版本变更记录
+- `Domain Model`
+  `Poi`、`Trip`、`User`、`RawPost` 等共享对象的定义、字段语义、可空性、状态机
+- `Integration Flow`
+  登录流程、POI 查询流程、行程创建流程、同步状态展示流程、错误恢复流程
+- `Deployment & Runtime`
+  环境变量、部署方式、健康检查、日志、配置来源、联调环境说明
+
+### 5.2 当前仓库中的落点
+
+当前阶段先落在本仓库的 `docs/` 下：
+
+- `docs/api/`
+- `docs/domain/`
+- `docs/deployment/`
+- `docs/current-progress.md`
+- `docs/module-plans/`
+
+其中：
+
+- `docs/api/` 面向前后端接口契约
+- `docs/domain/` 面向共享模型定义
+- `docs/deployment/` 面向服务端运行与联调环境
+- `docs/current-progress.md` 面向阶段状态同步
+- `docs/module-plans/` 主要服务于 Android 当前实现推进
+
+### 5.3 拆分后的归属建议
+
+拆分为两个代码项目后，协作文档建议独立维护，并采用以下归属规则：
+
+- Backend owner 负责 API 契约初稿、错误码、部署文档
+- Android owner 负责客户端消费约束、字段使用反馈、联调验收项
+- Domain 文档由前后端共同维护，任何字段语义变更必须同步更新
+
+### 5.4 变更流程
+
+任何跨端变更都按下面顺序执行：
+
+1. 先更新协作文档
+2. 明确兼容性与影响范围
+3. Backend 实现接口变更
+4. Android 适配新契约
+5. 完成联调并更新变更记录
+
+### 5.5 版本策略
+
+推荐从现在开始就采用下面的约束：
+
+- 新增字段优先向后兼容
+- 删除字段必须先标记弃用
+- 破坏性变更必须更新 API 版本说明
+- 所有示例请求响应都要放进 API 文档
+
+---
+
+## 6. 当前设计基线
+
+### 6.1 Android
+
+继续保持当前 Clean Architecture：
 
 ```text
-app/src/main/java/com/travelfinder/
+android/app/src/main/java/com/travelfinder/
 ├── data/
 ├── domain/
 ├── presentation/
@@ -386,24 +194,136 @@ app/src/main/java/com/travelfinder/
 └── util/
 ```
 
+演进原则：
+
+- `domain/` 保持业务抽象
+- `data/` 逐步从本地/临时数据路径切到真实 API
+- `presentation/` 保持地图、列表、行程页面职责清晰
+
+### 6.2 Backend
+
+当前已存在最小骨架，后续目标结构如下：
+
+```text
+backend/src/main/kotlin/com/travelfinder/
+├── application/
+├── auth/
+├── user/
+├── source/
+├── crawler/
+├── ocr/
+├── parser/
+├── geo/
+├── poi/
+├── trip/
+├── sync/
+└── common/
+```
+
+当前已落地模块：
+
+- `application/`
+- `poi/`
+- `trip/`
+- `common/`
+
+下一步优先补：
+
+- PostgreSQL 持久化
+- 数据表与迁移机制
+- 认证与用户模型
+
+---
+
+## 7. 关键协作对象
+
+跨端至少要对齐以下核心对象：
+
+- `Poi`
+- `Trip`
+- `User`
+- `Location`
+- `SyncStatus`
+- `ErrorResponse`
+
+Backend 内部还会继续扩展：
+
+- `RawPost`
+- `PostAsset`
+- `ExtractedText`
+- `AddressCandidate`
+- `SyncTask`
+- `SyncLog`
+
+其中前六类对象应优先写入协作文档，因为它们最容易直接进入 API。
+
+---
+
+## 8. 阶段路线
+
+### 阶段 1：单仓稳定化
+
+- 完成 Android 与 Backend 的目录定型
+- 固化最小 API
+- 明确 API / Domain / Deployment 文档结构
+
+### 阶段 2：Backend 基础设施化
+
+- 接入 PostgreSQL
+- 建立 schema 与迁移机制
+- 让最小 API 使用真实持久化数据
+
+### 阶段 3：Android 接口切换
+
+- Android 从本地/临时数据切到 Backend API
+- 完成 POI 列表、详情、行程的第一轮联调
+
+### 阶段 4：协作文档稳定化
+
+- 补齐错误码、兼容性规则、联调流程
+- 给 API 与领域模型建立版本变更记录
+
+### 阶段 5：双项目拆分
+
+- 拆出 `travel-finder-android`
+- 拆出 `travel-finder-backend`
+- 迁移或独立托管协作文档
+
+拆分执行细则见：
+
+- [docs/split-execution-plan.md](/home/bohuju/self_project/travel_finder/docs/split-execution-plan.md)
+
+---
+
+## 9. 拆分验收标准
+
+当项目准备从单仓过渡到双项目时，应满足：
+
+- Android 与 Backend 都能独立构建和运行
+- API 契约不再依赖口头同步
+- 关键领域对象已有文档定义
+- 联调流程可由文档执行
+- 部署方式、环境变量、健康检查已有文档
+- 至少完成一轮 Android <-> Backend 的真实接口联调
+
 ---
 
 ## 10. 风险与约束
 
-- 小红书数据获取要优先考虑合规方式，能用官方能力就不用强爬。
-- OCR 识别结果需要人工确认兜底，否则地址误差会很大。
-- 地理编码的结果要做地址标准化和去重。
-- 地图与导航最好做多供应商适配，避免单一厂商不可用。
-- 每日同步任务要有失败重试和日志，不然很难排查。
+- 如果先拆仓再补文档，前后端契约极易漂移
+- 如果 Android 长期继续依赖本地临时数据，Backend 会难以形成真实边界
+- 抓取、OCR、地理编码属于高不确定模块，不应阻塞最小联调闭环
+- 数据库 schema 若晚于接口设计太久，会造成 DTO 与持久化模型反复回滚
 
 ---
 
-## 11. 总结
+## 11. 当前结论
 
-这个项目的本质是：
+当前最合理的推进方式不是马上拆成两个仓库，而是：
 
-- 后端把“帖子内容”加工成“可定位、可规划、可同步”的 POI 数据。
-- 前端把 POI 变成“地图可视化 + 行程可操作”的用户界面。
-- OOP 用来保证系统能扩展来源、扩展 OCR、扩展地图服务，而不是把逻辑写死在页面里。
+1. 先在当前仓库内稳定 Android / Backend / docs 三者边界
+2. 再把 Backend 从内存实现推进到真实持久化
+3. 再让 Android 完成真实接口切换
+4. 最后在契约与文档稳定后拆成两个独立项目
 
-如果后续继续扩展，最值得做的是“智能路线排序”和“收藏兴趣画像”，这两个功能会显著提升使用便利性。
+也就是说，当前仓库是“拆分前的定型阶段”，而不是最终形态。

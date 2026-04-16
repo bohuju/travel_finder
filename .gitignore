@@ -13,7 +13,14 @@ build/
 
 # IDE files
 .idea/
+.vscode/
 *.iml
+
+# Kotlin local caches
+**/.kotlin/
+
+# Local database files
+backend/data/
 
 # OS files
 .DS_Store
