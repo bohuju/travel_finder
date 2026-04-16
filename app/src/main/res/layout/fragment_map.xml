@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".presentation.ui.map.MapFragment">
 
-    <!-- 地图视图 -->
     <FrameLayout
         android:id="@+id/map_container"
         android:layout_width="0dp"
@@ -18,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 搜索框 -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/search_card"
         android:layout_width="0dp"
@@ -60,7 +58,20 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- 附近搜索按钮 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/poi_results_recycler"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/poi_detail_sheet"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_card"
+        tools:listitem="@layout/item_poi" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/search_nearby_button"
         android:layout_width="wrap_content"
@@ -71,7 +82,6 @@
         app:layout_constraintBottom_toTopOf="@id/poi_detail_sheet"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 加载指示器 -->
     <ProgressBar
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
@@ -82,7 +92,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- POI 详情底部 sheet -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/poi_detail_sheet"
         android:layout_width="0dp"

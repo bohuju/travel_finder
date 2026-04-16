@@ -14,8 +14,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.travelfinder.databinding.FragmentMapBinding
 import com.travelfinder.domain.model.POI
+import com.travelfinder.presentation.adapter.POIAdapter
 import com.travelfinder.presentation.state.MapUiState
 import com.travelfinder.presentation.viewmodel.MapViewModel
 import com.travelfinder.presentation.viewmodel.TripViewModel
@@ -35,7 +37,7 @@ class MapFragment : Fragment() {
     private val mapViewModel: MapViewModel by activityViewModels()
     private val tripViewModel: TripViewModel by activityViewModels()
 
-    private val displayedPois = mutableListOf<POI>()
+    private lateinit var poiAdapter: POIAdapter
 
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -62,9 +64,23 @@ class MapFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupRecyclerView()
         setupSearch()
         setupBottomSheet()
         observeViewModel()
+    }
+
+    private fun setupRecyclerView() {
+        poiAdapter = POIAdapter(
+            onPOIClick = { poi ->
+                mapViewModel.selectPOI(poi)
+            }
+        )
+
+        binding.poiResultsRecycler.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = poiAdapter
+        }
     }
 
     private fun setupSearch() {
@@ -118,8 +134,9 @@ class MapFragment : Fragment() {
 
     private fun showPOIs(pois: List<POI>) {
         binding.progressBar.visibility = View.GONE
-        clearMarkers()
-        displayedPois.addAll(pois)
+        mapViewModel.clearSelectedPOI()
+        poiAdapter.submitList(pois)
+        binding.poiResultsRecycler.visibility = if (pois.isEmpty()) View.GONE else View.VISIBLE
     }
 
     private fun showError(message: String) {
@@ -128,7 +145,10 @@ class MapFragment : Fragment() {
     }
 
     private fun clearMarkers() {
-        displayedPois.clear()
+        if (::poiAdapter.isInitialized) {
+            poiAdapter.submitList(emptyList())
+        }
+        binding.poiResultsRecycler.visibility = View.GONE
     }
 
     private fun showPOIDetails(poi: POI) {
