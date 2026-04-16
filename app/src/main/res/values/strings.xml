@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Travel Finder</string>
+    <string name="map_search_hint">搜索景点、商圈或城市</string>
+    <string name="map_search">搜索</string>
+    <string name="map_search_nearby">搜索附近</string>
+    <string name="map_permission_needed">需要位置权限才能使用附近功能</string>
+    <string name="map_status_idle_title">等待开始探索</string>
+    <string name="map_status_idle_subtitle">输入关键词，或使用当前位置查找附近兴趣点</string>
+    <string name="map_status_loading_title">正在整理兴趣点</string>
+    <string name="map_status_loading_subtitle">会优先展示可导航、可加入行程的地点</string>
+    <string name="map_status_error_title">这次没有找到结果</string>
+    <string name="map_status_error_subtitle">可以换个关键词，或切换到附近搜索再试一次</string>
+    <string name="map_status_result_title">已找到 %1$d 个兴趣点</string>
+    <string name="map_status_result_subtitle">当前位置 %1$s，可直接查看详情、导航或加入行程</string>
+    <string name="map_location_unknown">未定位</string>
+    <string name="map_default_location">上海市中心</string>
+    <string name="map_selected_distance">距离你约 %1$s</string>
+    <string name="map_rating">评分 %1$.1f</string>
+    <string name="map_source">来源：%1$s</string>
+    <string name="map_source_local">本地缓存</string>
+    <string name="map_tags">标签：%1$s</string>
+    <string name="map_no_tags">暂无标签</string>
+    <string name="map_add_to_trip">添加到行程</string>
+    <string name="map_navigate">去这里</string>
+    <string name="map_added_to_trip">已添加到行程</string>
+    <string name="map_navigation_unavailable">暂时无法打开导航</string>
+    <string name="poi_image_desc">景点图片</string>
+    <string name="poi_remove">移除</string>
 </resources>

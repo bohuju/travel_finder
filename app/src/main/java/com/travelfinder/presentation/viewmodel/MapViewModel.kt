@@ -2,6 +2,7 @@ package com.travelfinder.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.travelfinder.domain.model.Location
 import com.travelfinder.domain.model.POI
 import com.travelfinder.domain.usecase.SearchPOIsUseCase
 import com.travelfinder.domain.usecase.SearchPOIsByLocationUseCase
@@ -28,8 +29,8 @@ class MapViewModel @Inject constructor(
     private val _selectedPOI = MutableStateFlow<POI?>(null)
     val selectedPOI: StateFlow<POI?> = _selectedPOI.asStateFlow()
 
-    private val _currentLocation = MutableStateFlow<Pair<Double, Double>?>(null)
-    val currentLocation: StateFlow<Pair<Double, Double>?> = _currentLocation.asStateFlow()
+    private val _currentLocation = MutableStateFlow<Location?>(null)
+    val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
 
     /**
      * 搜索 POI
@@ -56,7 +57,12 @@ class MapViewModel @Inject constructor(
     fun searchPOIsNearby(latitude: Double, longitude: Double, radiusMeters: Int = 5000) {
         viewModelScope.launch {
             _uiState.value = MapUiState.Loading
-            _currentLocation.value = Pair(latitude, longitude)
+            val currentAddress = _currentLocation.value?.address.orEmpty()
+            _currentLocation.value = Location(
+                latitude = latitude,
+                longitude = longitude,
+                address = currentAddress
+            )
 
             searchPOIsByLocationUseCase(latitude, longitude, radiusMeters)
                 .onSuccess { pois ->
@@ -85,7 +91,7 @@ class MapViewModel @Inject constructor(
     /**
      * 更新当前位置
      */
-    fun updateCurrentLocation(latitude: Double, longitude: Double) {
-        _currentLocation.value = Pair(latitude, longitude)
+    fun updateCurrentLocation(location: Location) {
+        _currentLocation.value = location
     }
 }

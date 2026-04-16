@@ -40,7 +40,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:hint="搜索景点..."
+                android:hint="@string/map_search_hint"
+                android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:paddingHorizontal="12dp"
                 android:paddingVertical="8dp"
@@ -51,8 +52,47 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="搜索"
+                android:contentDescription="@string/map_search"
                 android:src="@android:drawable/ic_menu_search" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/map_status_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:alpha="0.96"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_card">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:id="@+id/map_status_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                tools:text="已找到 12 个兴趣点" />
+
+            <TextView
+                android:id="@+id/map_status_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textColor="#666666"
+                android:textSize="12sp"
+                tools:text="当前位置 上海市中心，可直接查看详情、导航或加入行程" />
 
         </LinearLayout>
 
@@ -69,7 +109,7 @@
         app:layout_constraintBottom_toTopOf="@id/poi_detail_sheet"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_card"
+        app:layout_constraintTop_toBottomOf="@id/map_status_card"
         tools:listitem="@layout/item_poi" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -77,7 +117,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:contentDescription="搜索附近"
+        android:contentDescription="@string/map_search_nearby"
         android:src="@android:drawable/ic_menu_mylocation"
         app:layout_constraintBottom_toTopOf="@id/poi_detail_sheet"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -129,7 +169,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#FF9800"
-                    tools:text="评分: 4.5" />
+                    tools:text="评分 4.5" />
 
                 <TextView
                     android:id="@+id/poi_address"
@@ -144,6 +184,15 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/poi_distance"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#018786"
+                android:textSize="13sp"
+                tools:text="距离你约 1.2 km" />
+
+            <TextView
                 android:id="@+id/poi_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -152,14 +201,42 @@
                 android:maxLines="3"
                 tools:text="景点描述内容..." />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/add_to_trip_button"
+            <TextView
+                android:id="@+id/poi_meta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#666666"
+                android:textSize="12sp"
+                tools:text="标签：夜景 / 步行友好 / 拍照" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="添加到行程"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/navigate_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/map_navigate"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/add_to_trip_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:text="@string/map_add_to_trip"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
