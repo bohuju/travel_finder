@@ -16,6 +16,7 @@
     <string name="map_location_unknown">未定位</string>
     <string name="map_default_location">上海市中心</string>
     <string name="map_selected_distance">距离你约 %1$s</string>
+    <string name="map_info_window_selected">地图气泡已打开，可直接导航或加入行程</string>
     <string name="map_rating">评分 %1$.1f</string>
     <string name="map_source">来源：%1$s</string>
     <string name="map_source_local">本地缓存</string>

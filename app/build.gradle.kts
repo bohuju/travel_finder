@@ -16,6 +16,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        manifestPlaceholders["BAIDU_MAP_API_KEY"] =
+            (project.findProperty("BAIDU_MAP_API_KEY") as String?) ?: ""
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -89,6 +91,10 @@ dependencies {
 
     // Coil for image loading
     implementation("io.coil-kt:coil:2.5.0")
+
+    // Baidu Map
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Map:7.6.7")
+    implementation("com.baidu.lbsyun:BaiduMapSDK_Location_All:9.6.7")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

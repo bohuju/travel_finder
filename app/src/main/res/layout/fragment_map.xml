@@ -7,11 +7,10 @@
     android:layout_height="match_parent"
     tools:context=".presentation.ui.map.MapFragment">
 
-    <FrameLayout
-        android:id="@+id/map_container"
+    <com.baidu.mapapi.map.MapView
+        android:id="@+id/map_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#F2F4F7"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -105,8 +104,8 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
-        android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/poi_detail_sheet"
+        android:paddingBottom="96dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/map_status_card"
@@ -119,7 +118,7 @@
         android:layout_margin="16dp"
         android:contentDescription="@string/map_search_nearby"
         android:src="@android:drawable/ic_menu_mylocation"
-        app:layout_constraintBottom_toTopOf="@id/poi_detail_sheet"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ProgressBar
@@ -131,115 +130,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/poi_detail_sheet"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/poi_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                tools:text="景点名称" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/poi_rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="#FF9800"
-                    tools:text="评分 4.5" />
-
-                <TextView
-                    android:id="@+id/poi_address"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_weight="1"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    tools:text="上海市黄浦区" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/poi_distance"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="#018786"
-                android:textSize="13sp"
-                tools:text="距离你约 1.2 km" />
-
-            <TextView
-                android:id="@+id/poi_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:ellipsize="end"
-                android:maxLines="3"
-                tools:text="景点描述内容..." />
-
-            <TextView
-                android:id="@+id/poi_meta"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="#666666"
-                android:textSize="12sp"
-                tools:text="标签：夜景 / 步行友好 / 拍照" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="horizontal">
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/navigate_button"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/map_navigate"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/add_to_trip_button"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:text="@string/map_add_to_trip"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

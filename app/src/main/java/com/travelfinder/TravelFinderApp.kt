@@ -1,6 +1,9 @@
 package com.travelfinder
 
 import android.app.Application
+import com.baidu.location.LocationClient
+import com.baidu.mapapi.CoordType
+import com.baidu.mapapi.SDKInitializer
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -12,6 +15,9 @@ class TravelFinderApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        // 初始化操作可以在这里进行
+        LocationClient.setAgreePrivacy(true)
+        SDKInitializer.setAgreePrivacy(this, true)
+        SDKInitializer.setCoordType(CoordType.BD09LL)
+        SDKInitializer.initialize(this)
     }
 }

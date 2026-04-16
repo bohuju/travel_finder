@@ -31,20 +31,16 @@ class ExternalMapRouteNavigator(
             Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse(
-                    "androidamap://route?sourceApplication=TravelFinder" +
-                        "&dlat=$latitude&dlon=$longitude&dname=${Uri.encode(poi.name)}&dev=0&t=0"
-                )
-            ).setPackage("com.autonavi.minimap"),
-            Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(
                     "baidumap://map/direction?destination=name:${Uri.encode(poi.name)}|latlng:$latitude,$longitude" +
-                        "&coord_type=gcj02&mode=driving"
+                        "&coord_type=bd09ll&mode=driving&src=${Uri.encode(context.packageName)}"
                 )
             ).setPackage("com.baidu.BaiduMap"),
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude(${Uri.encode(poi.name)})")
+                Uri.parse(
+                    "https://api.map.baidu.com/direction?destination=latlng:$latitude,$longitude|name:${Uri.encode(poi.name)}" +
+                        "&mode=driving&coord_type=bd09ll&output=html&src=${Uri.encode(context.packageName)}"
+                )
             )
         )
 
